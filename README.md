@@ -27,7 +27,7 @@
 9. [Running the Application](#9-running-the-application)
 10. [Automated Test Suite & Verification](#10-automated-test-suite--verification)
 11. [Current Limitations & Honest Disclosures](#11-current-limitations--honest-disclosures)
-12. [Screenshots](#12-screenshots)
+12. [Application Screenshots](#12-application-screenshots)
 13. [Demo Video](#13-demo-video)
 14. [Future Roadmap](#14-future-roadmap)
 
@@ -202,6 +202,8 @@ sequenceDiagram
 VoiceHireAI/
 ├── .gitignore                     # Git ignore rules (secrets, audio, storage/voicehire.db)
 ├── README.md                      # Comprehensive project documentation
+├── docs/                          # Project documentation and visual walkthrough assets
+│   └── assets/                    # Application screenshots (01-home.png to 07-speech-lab.png)
 ├── storage/                       # SQLite storage directory (auto-created on startup)
 │   └── voicehire.db               # SQLite database file (gitignored)
 │
@@ -427,78 +429,47 @@ To maintain absolute academic and engineering integrity for the Gnani AI submiss
 
 ---
 
-## 12. Screenshots
+## 12. Application Screenshots
 
-*Actual application screenshots will be inserted here following visual recording.*
+### 1. Adaptive Interview Home
+![Adaptive Interview Home](docs/assets/01-home.png)
+*Welcome view of VoiceHire AI showing the adaptive interview mode, quick-start configuration, and navigation tabs.*
 
-### 1. Interview Setup & Configuration
-> Configure candidate name, target role (Python, Java, Full Stack, Data Analyst), language mode, and starting difficulty tier.
->
-> ```
-> ┌────────────────────────────────────────────────────────┐
-> │ [ SCREENSHOT PLACEHOLDER: Interview Setup Interface ]  │
-> │                                                        │
-> │  - Target Role Choice Cards (Python Developer, etc.)   │
-> │  - Language Pills (English, Telugu, Telugu-English)   │
-> │  - Difficulty Tier Selector                            │
-> │  - Start Voice Interview Button                        │
-> └────────────────────────────────────────────────────────┘
-> ```
+---
 
-### 2. Live Interview Room
-> Spoken question playback via Timbre TTS, live microphone waveform recording, and automatic transcription via Prisma STT.
->
-> ```
-> ┌────────────────────────────────────────────────────────┐
-> │ [ SCREENSHOT PLACEHOLDER: Live Interview Room ]        │
-> │                                                        │
-> │  - Question 1 Prompt & Category Badge                  │
-> │  - Replay Question Voice (Timbre TTS 48 kHz WAV)       │
-> │  - Live Recording Pulse & Duration Timer (00:24)       │
-> │  - Editable Transcribed Answer Textarea                │
-> └────────────────────────────────────────────────────────┘
-> ```
+### 2. Interview Configuration & Role Selection
+![Interview Configuration](docs/assets/02-interview-setup.png)
+*Candidate setup interface supporting technical role selection (Python, Java, Full Stack, Data Analyst), language modes (English, Telugu, Code-Mixed), and starting difficulty tiers.*
 
-### 3. Immediate Evaluation & Difficulty Adjustment
-> Transparent scoring, demonstrated strengths, missing concepts, and dynamic difficulty adjustment banner.
->
-> ```
-> ┌────────────────────────────────────────────────────────┐
-> │ [ SCREENSHOT PLACEHOLDER: Turn Evaluation Card ]       │
-> │                                                        │
-> │  - Score: 85.0 / 100                                   │
-> │  - "Adaptive Engine: Difficulty upgraded to ADVANCED"  │
-> │  - Demonstrated Strengths & Missing Concepts           │
-> │  - Verbatim Evidence Quotes from Answer                │
-> └────────────────────────────────────────────────────────┘
-> ```
+---
 
-### 4. Comprehensive Performance Scorecard
-> Final technical assessment report with category breakdown, performance tier, and tailored study recommendations.
->
-> ```
-> ┌────────────────────────────────────────────────────────┐
-> │ [ SCREENSHOT PLACEHOLDER: Final Performance Report ]   │
-> │                                                        │
-> │  - Overall Technical Score: 82.5 / 100                 │
-> │  - Tier Badge: Strong Hire / High Proficiency          │
-> │  - Category Breakdown Progress Bars                    │
-> │  - Growth Recommendations & Next Steps                 │
-> └────────────────────────────────────────────────────────┘
-> ```
+### 3. Live Adaptive Interview Room
+![Live Adaptive Interview](docs/assets/03-live-interview.png)
+*Live interview room with spoken question playback via Gnani Timbre v3.0, browser Web Audio recording with live duration timer, and editable transcript area.*
 
-### 5. Session History & Turn Audit
-> Persistent SQLite session log with turn-by-turn inspection.
->
-> ```
-> ┌────────────────────────────────────────────────────────┐
-> │ [ SCREENSHOT PLACEHOLDER: Session History & Audit ]    │
-> │                                                        │
-> │  - Paginated List of Completed & Active Interviews    │
-> │  - Detailed Modal Audit showing all Q&A Turns          │
-> │  - Delete & Export Actions                             │
-> └────────────────────────────────────────────────────────┘
-> ```
+---
+
+### 4. Answer Evaluation & Real-Time Difficulty Adjustment
+![Answer Evaluation and Feedback](docs/assets/04-evaluation.png)
+*Turn-by-turn transparent evaluation card showing score, real-time difficulty tier adjustment, constructive feedback, demonstrated strengths, missing concepts, and verbatim evidence quotes.*
+
+---
+
+### 5. Final Interview Performance Report
+![Final Interview Report](docs/assets/05-final-report.png)
+*Structured candidate performance scorecard featuring overall score, performance tier badge, category breakdown progress bars, summary strengths, and targeted study recommendations.*
+
+---
+
+### 6. Interview History & Session Audit
+![Interview History](docs/assets/06-interview-history.png)
+*Persistent SQLite session audit log showing historical candidate screening records, completion status, overall scores, and turn inspection modal.*
+
+---
+
+### 7. Speech Lab & Gnani Integration Diagnostics
+![Speech Lab and Gnani Integration Diagnostics](docs/assets/07-speech-lab.png)
+*Dedicated Speech Lab diagnostic playground for verifying isolated Gnani Timbre v3.0 text-to-speech synthesis and Gnani Prisma speech-to-text audio transcription.*
 
 ---
 
