@@ -472,6 +472,7 @@ To maintain absolute academic and engineering integrity for the Gnani AI submiss
 *Dedicated Speech Lab diagnostic playground for verifying isolated Gnani Timbre v3.0 text-to-speech synthesis and Gnani Prisma speech-to-text audio transcription.*
 
 ---
+##live app:  https://voicehire-ai.pages.dev/
 
 ## 13. Demo Video
 
