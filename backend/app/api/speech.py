@@ -1,7 +1,9 @@
 """
 Speech API routes for VoiceHire AI backend.
 
-Provides the speech-to-text transcription endpoint powered by Gnani Prisma.
+Provides:
+- POST /api/speech/transcribe  — speech-to-text via Gnani Prisma
+- POST /api/speech/synthesize  — text-to-speech via Gnani Timbre v3.0
 """
 
 import logging
@@ -9,7 +11,7 @@ from pathlib import Path
 import tempfile
 from typing import Annotated
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, File, Form, HTTPException, Response, UploadFile, status
 from pydantic import BaseModel, Field
 
 from app.core.config import settings
@@ -20,6 +22,17 @@ from app.services.stt_service import (
     STTServiceError,
     STTTimeoutError,
     transcribe_audio_file,
+)
+from app.services.tts_service import (
+    TTSAuthenticationError,
+    TTSInvalidAudioError,
+    TTSPermissionError,
+    TTSProviderError,
+    TTSRateLimitError,
+    TTSServiceError,
+    TTSTimeoutError,
+    TTSValidationError,
+    synthesize_speech_audio,
 )
 
 logger = logging.getLogger(__name__)
@@ -166,3 +179,128 @@ def transcribe_speech(
                 temp_path.unlink()
             except OSError as err:
                 logger.warning("Failed to remove temporary file %s: %s", temp_path, err)
+
+
+# =============================================================================
+# TTS — Text-to-Speech endpoint (Gnani Timbre v3.0)
+# =============================================================================
+
+
+class SynthesizeRequest(BaseModel):
+    """Request schema for speech synthesis via Gnani Timbre v3.0."""
+
+    text: str = Field(
+        ...,
+        min_length=1,
+        max_length=800,
+        description="Text to synthesize into speech (max 800 characters).",
+    )
+    voice: str = Field(
+        default="Riyaa",
+        description="Voice name for synthesis (supported: Riyaa).",
+    )
+    language_code: str = Field(
+        default="en-IN",
+        description="BCP-47 language code for synthesis (supported: en-IN, te-IN).",
+    )
+    speed: float = Field(
+        default=1.0,
+        gt=0.0,
+        le=3.0,
+        description="Speech speed multiplier (0.0 exclusive – 3.0 inclusive).",
+    )
+
+
+@router.post(
+    "/synthesize",
+    summary="Synthesize speech audio via Gnani Timbre v3.0",
+    description=(
+        "Convert text to speech using Gnani Timbre v3.0. "
+        "Returns binary WAV audio (audio/wav). "
+        "Supported voices: Riyaa. Supported languages: en-IN, te-IN. "
+        "Maximum text length: 800 characters."
+    ),
+    response_class=Response,
+    responses={
+        200: {
+            "content": {"audio/wav": {}},
+            "description": "WAV audio file successfully synthesized.",
+        },
+        400: {"description": "Validation error — empty/too-long text, unsupported voice or language."},
+        403: {"description": "Provider permission denied."},
+        429: {"description": "Provider rate limit exceeded."},
+        503: {"description": "Speech synthesis credentials not configured."},
+        502: {"description": "Upstream provider error or invalid audio response."},
+        504: {"description": "Provider request timed out."},
+    },
+)
+def synthesize_speech(request: SynthesizeRequest) -> Response:
+    """
+    Synthesize text into binary WAV audio using Gnani Timbre v3.0.
+
+    Validates input, forwards the request to the TTS service, and returns
+    raw binary WAV audio. API credentials and provider details remain
+    entirely server-side — they are never echoed to callers.
+    """
+    try:
+        audio_bytes = synthesize_speech_audio(
+            text=request.text,
+            voice=request.voice,
+            language_code=request.language_code,
+            speed=request.speed,
+        )
+    except TTSValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=exc.message,
+        ) from exc
+    except TTSAuthenticationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=exc.message,
+        ) from exc
+    except TTSPermissionError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=exc.message,
+        ) from exc
+    except TTSRateLimitError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=exc.message,
+        ) from exc
+    except TTSTimeoutError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            detail=exc.message,
+        ) from exc
+    except TTSInvalidAudioError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=exc.message,
+        ) from exc
+    except TTSProviderError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=exc.message,
+        ) from exc
+    except TTSServiceError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=exc.message,
+        ) from exc
+    except Exception as exc:
+        logger.error("Unhandled exception during speech synthesis: %s", type(exc).__name__)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred during speech synthesis.",
+        ) from exc
+
+    return Response(
+        content=audio_bytes,
+        media_type="audio/wav",
+        headers={
+            "Content-Disposition": 'inline; filename="voicehire-tts.wav"',
+            "Content-Length": str(len(audio_bytes)),
+        },
+    )

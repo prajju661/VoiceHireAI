@@ -19,4 +19,10 @@ frontend/dist-ssr/
 Thumbs.db
 # Local test audio
 backend/prisma-test.wav
+backend/timbre-test.wav
 
+
+# Temporary Timbre HTTP test artifacts
+backend/tts-http-test*.wav
+backend/tts-http-headers.txt
+backend/tts-request.json

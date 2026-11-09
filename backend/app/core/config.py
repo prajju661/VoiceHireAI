@@ -39,6 +39,16 @@ class Settings:
     }
     DEFAULT_LANGUAGE_CODE: str = "en-IN"
 
+    # Text-to-Speech (Gnani Timbre v3.0) Configuration
+    TTS_ENDPOINT_URL: str = "https://api.vachana.ai/api/v1/tts/inference"
+    TTS_DEFAULT_MODEL: str = "timbre-v3.0"
+    TTS_DEFAULT_VOICE: str = "Riyaa"
+    TTS_DEFAULT_LANGUAGE: str = "en-IN"
+    TTS_SUPPORTED_VOICES: set[str] = {"Riyaa"}
+    TTS_SUPPORTED_LANGUAGES: set[str] = {"en-IN", "te-IN"}
+    TTS_MAX_TEXT_LENGTH: int = 800
+    TTS_TIMEOUT_SECONDS: float = 30.0
+
     @property
     def gnani_api_key(self) -> str:
         """Retrieve the Gnani API key from the environment without exposing it."""

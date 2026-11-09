@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AudioTranscribe } from './components/AudioTranscribe';
 import { BackendStatus } from './components/BackendStatus';
+import { InterviewQuestionSpeaker } from './components/InterviewQuestionSpeaker';
 import { getBackendWelcome, type WelcomeResponse } from './services/api';
 import './App.css';
 
@@ -31,7 +32,7 @@ function App() {
             </p>
           </div>
         </div>
-        <div className="phase-pill">Phase 3: Live Microphone Recording</div>
+        <div className="phase-pill">Phase 4: Timbre TTS + Live Recording</div>
       </header>
 
       {/* Main Content */}
@@ -41,7 +42,12 @@ function App() {
           <BackendStatus />
         </section>
 
-        {/* Phase 2 Speech Transcription Testing Card */}
+        {/* Phase 4A/B — TTS: Gnani Timbre v3.0 Interview Question Speaker */}
+        <section className="tts-section">
+          <InterviewQuestionSpeaker />
+        </section>
+
+        {/* Phase 2/3 Speech Transcription Testing Card */}
         <section className="transcribe-section">
           <AudioTranscribe />
         </section>
@@ -72,6 +78,17 @@ function App() {
         {/* System Architecture Overview */}
         <section className="cards-grid">
           <div className="info-card">
+            <div className="card-badge">Text-to-Speech</div>
+            <h3>Gnani Timbre v3.0</h3>
+            <p className="card-url">POST /api/speech/synthesize</p>
+            <ul className="feature-list">
+              <li>Voice: Riyaa &bull; 48 kHz mono WAV</li>
+              <li>Languages: <code>en-IN</code>, <code>te-IN</code></li>
+              <li>WAV size fields patched server-side</li>
+            </ul>
+          </div>
+
+          <div className="info-card">
             <div className="card-badge">Speech-to-Text</div>
             <h3>Gnani Prisma STT</h3>
             <p className="card-url">POST /api/speech/transcribe</p>
@@ -98,7 +115,7 @@ function App() {
       {/* Footer */}
       <footer className="app-footer">
         <p>
-          VoiceHire AI &mdash; Phase 3: Live Microphone Recording &bull; Built with
+          VoiceHire AI &mdash; Phase 4: Gnani Timbre TTS + Live Microphone Recording &bull; Built with
           FastAPI &amp; React
         </p>
       </footer>
