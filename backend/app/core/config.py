@@ -16,6 +16,25 @@ else:
     load_dotenv()
 
 DEFAULT_DATABASE_PATH = PROJECT_ROOT / "storage" / "voicehire.db"
+DEFAULT_ALLOWED_ORIGINS: list[str] = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+
+def parse_allowed_origins(raw: str | None = None) -> list[str]:
+    """
+    Parse comma-separated origins, trim whitespace, and ignore empty entries.
+
+    Falls back to local development defaults if missing, empty, or whitespace-only.
+    Wildcard origins are not permitted.
+    """
+    if raw is None:
+        raw = os.getenv("ALLOWED_ORIGINS", "")
+    parsed = [origin.strip() for origin in raw.split(",") if origin.strip()]
+    if "*" in parsed:
+        raise ValueError("Wildcard origin ('*') is not allowed in ALLOWED_ORIGINS.")
+    return parsed if parsed else list(DEFAULT_ALLOWED_ORIGINS)
 
 
 class Settings:
@@ -24,11 +43,10 @@ class Settings:
     PROJECT_NAME: str = "VoiceHire AI"
     VERSION: str = "0.2.0"
 
-    # CORS Allowed Origins
-    ALLOWED_ORIGINS: list[str] = [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ]
+    # CORS Allowed Origins (configurable via ALLOWED_ORIGINS env var)
+    @property
+    def ALLOWED_ORIGINS(self) -> list[str]:
+        return parse_allowed_origins()
 
     # Database Configuration (SQLite)
     DATABASE_PATH: Path = Path(os.getenv("DATABASE_PATH", str(DEFAULT_DATABASE_PATH)))
