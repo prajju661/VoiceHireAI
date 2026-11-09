@@ -31,7 +31,7 @@ function App() {
             </p>
           </div>
         </div>
-        <div className="phase-pill">Phase 2: Prisma Integration</div>
+        <div className="phase-pill">Phase 3: Live Microphone Recording</div>
       </header>
 
       {/* Main Content */}
@@ -98,8 +98,8 @@ function App() {
       {/* Footer */}
       <footer className="app-footer">
         <p>
-          VoiceHire AI &mdash; Phase 2: Gnani Prisma STT &bull; Built with FastAPI &
-          React
+          VoiceHire AI &mdash; Phase 3: Live Microphone Recording &bull; Built with
+          FastAPI &amp; React
         </p>
       </footer>
     </div>

@@ -88,6 +88,53 @@ def test_transcribe_speech_telugu_language():
         assert response.transcript == "నమస్కారం, నా పేరు రాజేష్."
 
 
+def test_transcribe_live_recorded_pcm_wav():
+    """Verify live microphone 16 kHz 16-bit mono PCM WAV is accepted and processed."""
+    import struct
+
+    num_samples = 320
+    data_size = num_samples * 2
+    header = bytearray()
+    header.extend(b"RIFF")
+    header.extend(struct.pack("<I", 36 + data_size))
+    header.extend(b"WAVEfmt ")
+    header.extend(struct.pack("<I", 16))  # Subchunk1Size
+    header.extend(struct.pack("<H", 1))  # PCM
+    header.extend(struct.pack("<H", 1))  # Mono
+    header.extend(struct.pack("<I", 16000))  # 16000 Hz
+    header.extend(struct.pack("<I", 32000))  # ByteRate
+    header.extend(struct.pack("<H", 2))  # BlockAlign
+    header.extend(struct.pack("<H", 16))  # 16-bit
+    header.extend(b"data")
+    header.extend(struct.pack("<I", data_size))
+    samples = struct.pack(f"<{num_samples}h", *([500] * num_samples))
+    wav_payload = bytes(header + samples)
+
+    mock_upload = create_mock_upload("voicehire-recording-1718000000.wav", wav_payload)
+
+    with patch("app.api.speech.transcribe_audio_file") as mock_stt:
+        mock_stt.return_value = {
+            "success": True,
+            "transcript": "I am answering the interview question with live microphone input.",
+            "language_code": "en-IN",
+            "provider": "gnani_prisma",
+        }
+
+        response = transcribe_speech(
+            audio=mock_upload,
+            language_code="en-IN",
+        )
+
+        assert response.success is True
+        assert (
+            response.transcript
+            == "I am answering the interview question with live microphone input."
+        )
+        assert response.language_code == "en-IN"
+        assert response.provider == "gnani_prisma"
+        mock_stt.assert_called_once()
+
+
 # =====================================================================
 # 2. Missing Audio File
 # =====================================================================
