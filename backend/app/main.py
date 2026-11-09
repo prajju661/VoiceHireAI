@@ -17,9 +17,14 @@ if str(BACKEND_DIR) not in sys.path:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.interview import router as interview_router
 from app.api.routes import router as general_router
 from app.api.speech import router as speech_router
 from app.core.config import settings
+from app.db.database import init_db
+
+# Initialize SQLite database schema
+init_db()
 
 # Initialize FastAPI application
 app = FastAPI(
@@ -41,3 +46,4 @@ app.add_middleware(
 # Register routes
 app.include_router(general_router)
 app.include_router(speech_router)
+app.include_router(interview_router)

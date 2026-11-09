@@ -8,11 +8,14 @@ from dotenv import load_dotenv
 
 # Ensure environment variables are loaded from backend/.env or root .env
 BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
+PROJECT_ROOT = BACKEND_DIR.parent
 ENV_FILE = BACKEND_DIR / ".env"
 if ENV_FILE.exists():
     load_dotenv(ENV_FILE)
 else:
     load_dotenv()
+
+DEFAULT_DATABASE_PATH = PROJECT_ROOT / "storage" / "voicehire.db"
 
 
 class Settings:
@@ -26,6 +29,9 @@ class Settings:
         "http://localhost:5173",
         "http://127.0.0.1:5173",
     ]
+
+    # Database Configuration (SQLite)
+    DATABASE_PATH: Path = Path(os.getenv("DATABASE_PATH", str(DEFAULT_DATABASE_PATH)))
 
     # Audio Upload Constraints
     MAX_AUDIO_SIZE_BYTES: int = 25 * 1024 * 1024  # 25 MB max upload

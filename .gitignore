@@ -26,3 +26,10 @@ backend/timbre-test.wav
 backend/tts-http-test*.wav
 backend/tts-http-headers.txt
 backend/tts-request.json
+
+# Local storage and SQLite databases
+storage/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm

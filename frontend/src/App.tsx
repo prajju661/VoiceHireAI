@@ -1,21 +1,44 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { AudioTranscribe } from './components/AudioTranscribe';
 import { BackendStatus } from './components/BackendStatus';
 import { InterviewQuestionSpeaker } from './components/InterviewQuestionSpeaker';
-import { getBackendWelcome, type WelcomeResponse } from './services/api';
+import { InterviewHistory } from './components/interview/InterviewHistory';
+import { InterviewReport } from './components/interview/InterviewReport';
+import { InterviewRoom } from './components/interview/InterviewRoom';
+import { InterviewSetup } from './components/interview/InterviewSetup';
+import {
+  type InterviewSummary,
+  type StartInterviewResponse,
+} from './services/api';
 import './App.css';
 
-function App() {
-  const [welcomeData, setWelcomeData] = useState<WelcomeResponse | null>(null);
+type MainTab = 'interview' | 'speech-lab';
+type InterviewStep = 'setup' | 'room' | 'report' | 'history';
 
-  useEffect(() => {
-    // Optionally fetch the root welcome message to show full API connectivity
-    getBackendWelcome()
-      .then((data) => setWelcomeData(data))
-      .catch(() => {
-        // Ignored here because BackendStatus handles error reporting for health
-      });
-  }, []);
+function App() {
+  const [activeTab, setActiveTab] = useState<MainTab>('interview');
+  const [interviewStep, setInterviewStep] = useState<InterviewStep>('setup');
+
+  // Active interview state
+  const [activeSession, setActiveSession] = useState<StartInterviewResponse | null>(null);
+  const [interviewSummary, setInterviewSummary] = useState<InterviewSummary | null>(null);
+
+  const handleInterviewStarted = (session: StartInterviewResponse) => {
+    setActiveSession(session);
+    setInterviewSummary(null);
+    setInterviewStep('room');
+  };
+
+  const handleInterviewCompleted = (summary: InterviewSummary) => {
+    setInterviewSummary(summary);
+    setInterviewStep('report');
+  };
+
+  const handleStartNewInterview = () => {
+    setActiveSession(null);
+    setInterviewSummary(null);
+    setInterviewStep('setup');
+  };
 
   return (
     <div className="app-container">
@@ -28,95 +51,123 @@ function App() {
           <div>
             <h1 className="brand-title">VoiceHire AI</h1>
             <p className="brand-tagline">
-              Adaptive Multilingual AI Voice Interviewer &bull; Powered by Gnani Prisma
+              Adaptive Multilingual AI Voice Interviewer &bull; Powered by Gnani Prisma &amp; Timbre
             </p>
           </div>
         </div>
-        <div className="phase-pill">Phase 4: Timbre TTS + Live Recording</div>
+
+        <nav className="header-nav-tabs" aria-label="Main Navigation">
+          <button
+            type="button"
+            className={`nav-tab-btn ${activeTab === 'interview' ? 'nav-tab-active' : ''}`}
+            onClick={() => setActiveTab('interview')}
+          >
+            🎯 Adaptive Interview
+          </button>
+          <button
+            type="button"
+            className={`nav-tab-btn ${activeTab === 'speech-lab' ? 'nav-tab-active' : ''}`}
+            onClick={() => setActiveTab('speech-lab')}
+          >
+            🧪 Speech Lab &amp; Diagnostics
+          </button>
+        </nav>
       </header>
 
       {/* Main Content */}
       <main className="app-main">
-        {/* Backend Connection Indicator */}
-        <section className="status-section">
-          <BackendStatus />
-        </section>
+        {activeTab === 'interview' ? (
+          <section className="interview-main-section">
+            {interviewStep === 'setup' && (
+              <InterviewSetup
+                onInterviewStarted={handleInterviewStarted}
+                onViewHistory={() => setInterviewStep('history')}
+              />
+            )}
 
-        {/* Phase 4A/B — TTS: Gnani Timbre v3.0 Interview Question Speaker */}
-        <section className="tts-section">
-          <InterviewQuestionSpeaker />
-        </section>
+            {interviewStep === 'room' && activeSession && (
+              <InterviewRoom
+                session={activeSession}
+                onComplete={handleInterviewCompleted}
+                onExit={handleStartNewInterview}
+              />
+            )}
 
-        {/* Phase 2/3 Speech Transcription Testing Card */}
-        <section className="transcribe-section">
-          <AudioTranscribe />
-        </section>
+            {interviewStep === 'report' && interviewSummary && activeSession && (
+              <InterviewReport
+                summary={interviewSummary}
+                jobRole={activeSession.job_role}
+                candidateName={activeSession.candidate_name}
+                onStartNew={handleStartNewInterview}
+                onViewHistory={() => setInterviewStep('history')}
+              />
+            )}
 
-        {/* API Welcome Message Card (if loaded) */}
-        {welcomeData && (
-          <section className="welcome-card">
-            <div className="welcome-header">
-              <span className="welcome-icon" aria-hidden="true">
-                ✨
-              </span>
-              <h3>Backend Operational Status</h3>
-            </div>
-            <p className="welcome-message">{welcomeData.message}</p>
-            {welcomeData.docs_url && (
-              <a
-                href={`http://127.0.0.1:8000${welcomeData.docs_url}`}
-                target="_blank"
-                rel="noreferrer"
-                className="welcome-docs-link"
-              >
-                Open API Documentation (Swagger UI) &rarr;
-              </a>
+            {interviewStep === 'history' && (
+              <InterviewHistory onStartNew={handleStartNewInterview} />
             )}
           </section>
+        ) : (
+          <div className="speech-lab-section">
+            {/* Backend Connection Indicator */}
+            <section className="status-section">
+              <BackendStatus />
+            </section>
+
+            {/* TTS: Gnani Timbre v3.0 Interview Question Speaker */}
+            <section className="tts-section">
+              <InterviewQuestionSpeaker />
+            </section>
+
+            {/* STT: Gnani Prisma Speech Transcription */}
+            <section className="transcribe-section">
+              <AudioTranscribe />
+            </section>
+
+            {/* System Architecture Overview */}
+            <section className="cards-grid">
+              <div className="info-card">
+                <div className="card-badge">Adaptive Engine</div>
+                <h3>Rule-Based Reasoning</h3>
+                <p className="card-url">POST /api/interview/start</p>
+                <ul className="feature-list">
+                  <li>Transparent rubric &amp; evidence extraction</li>
+                  <li>Multi-role question banks (Python, Java, Full Stack, Data)</li>
+                  <li>Real-time dynamic difficulty tier adjustment</li>
+                </ul>
+              </div>
+
+              <div className="info-card">
+                <div className="card-badge">Text-to-Speech</div>
+                <h3>Gnani Timbre v3.0</h3>
+                <p className="card-url">POST /api/speech/synthesize</p>
+                <ul className="feature-list">
+                  <li>Voice: Riyaa &bull; 48 kHz mono WAV</li>
+                  <li>Languages: <code>en-IN</code>, <code>te-IN</code></li>
+                  <li>Size fields repaired server-side for clean playback</li>
+                </ul>
+              </div>
+
+              <div className="info-card">
+                <div className="card-badge">Speech-to-Text</div>
+                <h3>Gnani Prisma STT</h3>
+                <p className="card-url">POST /api/speech/transcribe</p>
+                <ul className="feature-list">
+                  <li>Web Audio PCM 16-bit 16 kHz WAV recording</li>
+                  <li>Multilingual support (<code>en-IN</code>, <code>te-IN</code>)</li>
+                  <li>Secure temp audio processing &amp; auto-cleanup</li>
+                </ul>
+              </div>
+            </section>
+          </div>
         )}
-
-        {/* System Architecture Overview */}
-        <section className="cards-grid">
-          <div className="info-card">
-            <div className="card-badge">Text-to-Speech</div>
-            <h3>Gnani Timbre v3.0</h3>
-            <p className="card-url">POST /api/speech/synthesize</p>
-            <ul className="feature-list">
-              <li>Voice: Riyaa &bull; 48 kHz mono WAV</li>
-              <li>Languages: <code>en-IN</code>, <code>te-IN</code></li>
-              <li>WAV size fields patched server-side</li>
-            </ul>
-          </div>
-
-          <div className="info-card">
-            <div className="card-badge">Speech-to-Text</div>
-            <h3>Gnani Prisma STT</h3>
-            <p className="card-url">POST /api/speech/transcribe</p>
-            <ul className="feature-list">
-              <li>Verified <code>gnani-vachana</code> SDK integration</li>
-              <li>Multilingual support (<code>en-IN</code>, <code>te-IN</code>)</li>
-              <li>Secure temp audio processing & auto-cleanup</li>
-            </ul>
-          </div>
-
-          <div className="info-card">
-            <div className="card-badge">Server</div>
-            <h3>Backend (FastAPI)</h3>
-            <p className="card-url">http://127.0.0.1:8000</p>
-            <ul className="feature-list">
-              <li>Multipart audio validation & size limits</li>
-              <li>CORS configured for Vite frontend</li>
-              <li>Credential protection (secrets strictly masked)</li>
-            </ul>
-          </div>
-        </section>
       </main>
 
       {/* Footer */}
       <footer className="app-footer">
         <p>
-          VoiceHire AI &mdash; Phase 4: Gnani Timbre TTS + Live Microphone Recording &bull; Built with
-          FastAPI &amp; React
+          VoiceHire AI &mdash; Phase 5B: Complete Frontend Voice Interview Experience &bull; Built with
+          FastAPI, SQLite &amp; React
         </p>
       </footer>
     </div>
