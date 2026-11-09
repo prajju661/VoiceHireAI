@@ -21,4 +21,6 @@ frontend/dist-ssr/
 .idea/
 .DS_Store
 Thumbs.db
+# Local test audio
+backend/prisma-test.wav
 
