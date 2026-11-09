@@ -114,17 +114,17 @@ flowchart TD
 
     UI --> APIClient
     WebAudio --> APIClient
-    APIClient -->|JSON / Multipart| RouterInterview
-    APIClient -->|JSON / Multipart| RouterSpeech
+    APIClient -->|"JSON / Multipart"| RouterInterview
+    APIClient -->|"JSON / Multipart"| RouterSpeech
     RouterSpeech --> STTService
     RouterSpeech --> TTSService
-    STTService -->|SDK / REST| PrismaAPI
-    TTSService -->|REST (X-API-Key-ID)| TimbreAPI
+    STTService -->|"SDK / REST"| PrismaAPI
+    TTSService -->|"REST API Header"| TimbreAPI
     RouterInterview --> InterviewService
     InterviewService --> Reasoner
     InterviewService --> Repo
     Repo --> SQLite
-    TTSService -->|Binary WAV| AudioPlayer
+    TTSService -->|"Binary WAV"| AudioPlayer
 ```
 
 ### Complete Interview Turn Sequence
