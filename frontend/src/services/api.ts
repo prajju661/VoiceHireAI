@@ -17,6 +17,13 @@ export interface WelcomeResponse {
   docs_url?: string;
 }
 
+export interface TranscribeResponse {
+  success: boolean;
+  transcript: string;
+  language_code: string;
+  provider: string;
+}
+
 /**
  * Checks the operational health of the FastAPI backend.
  * Calls GET /health.
@@ -86,6 +93,57 @@ export async function getBackendWelcome(): Promise<WelcomeResponse> {
       });
     }
     throw new Error(`Failed to reach backend at ${url}: Unknown error`, {
+      cause: error,
+    });
+  }
+}
+
+/**
+ * Uploads an audio file to the FastAPI backend for Gnani Prisma STT transcription.
+ * Calls POST /api/speech/transcribe.
+ *
+ * @param audioFile The local audio file to transcribe (.wav, .mp3, .ogg, .flac, .aac, .m4a)
+ * @param languageCode BCP-47 language code (defaults to 'en-IN')
+ * @returns TranscribeResponse containing the recognized transcript and metadata
+ */
+export async function transcribeAudio(
+  audioFile: File,
+  languageCode: string = 'en-IN'
+): Promise<TranscribeResponse> {
+  const url = `${API_BASE_URL}/api/speech/transcribe`;
+  const formData = new FormData();
+  formData.append('audio', audioFile);
+  formData.append('language_code', languageCode);
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      let errorMessage = `Server error ${response.status}: ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        if (errorData && errorData.detail) {
+          errorMessage =
+            typeof errorData.detail === 'string'
+              ? errorData.detail
+              : JSON.stringify(errorData.detail);
+        }
+      } catch {
+        // Fallback to HTTP status text if body is not JSON
+      }
+      throw new Error(errorMessage);
+    }
+
+    const data: TranscribeResponse = await response.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error(error.message, { cause: error });
+    }
+    throw new Error('An unexpected error occurred during audio transcription.', {
       cause: error,
     });
   }

@@ -4,11 +4,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.env
-
-# Frontend environment
-frontend/.env
-frontend/.env.local
-frontend/.env.*.local
+!backend/.env.example
 !frontend/.env.example
 
 # Node / Frontend

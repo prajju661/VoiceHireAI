@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { AudioTranscribe } from './components/AudioTranscribe';
 import { BackendStatus } from './components/BackendStatus';
 import { getBackendWelcome, type WelcomeResponse } from './services/api';
 import './App.css';
@@ -26,26 +27,23 @@ function App() {
           <div>
             <h1 className="brand-title">VoiceHire AI</h1>
             <p className="brand-tagline">
-              AI-Powered Voice Interview Screening Platform
+              Adaptive Multilingual AI Voice Interviewer &bull; Powered by Gnani Prisma
             </p>
           </div>
         </div>
-        <div className="phase-pill">Phase 1: Foundation</div>
+        <div className="phase-pill">Phase 2: Prisma Integration</div>
       </header>
 
       {/* Main Content */}
       <main className="app-main">
-        <section className="hero-section">
-          <h2>Frontend & Backend Integration</h2>
-          <p className="hero-description">
-            Live status monitor verifying communication between the React +
-            Vite frontend and the FastAPI backend.
-          </p>
-        </section>
-
         {/* Backend Connection Indicator */}
         <section className="status-section">
           <BackendStatus />
+        </section>
+
+        {/* Phase 2 Speech Transcription Testing Card */}
+        <section className="transcribe-section">
+          <AudioTranscribe />
         </section>
 
         {/* API Welcome Message Card (if loaded) */}
@@ -55,7 +53,7 @@ function App() {
               <span className="welcome-icon" aria-hidden="true">
                 ✨
               </span>
-              <h3>Backend Message</h3>
+              <h3>Backend Operational Status</h3>
             </div>
             <p className="welcome-message">{welcomeData.message}</p>
             {welcomeData.docs_url && (
@@ -65,7 +63,7 @@ function App() {
                 rel="noreferrer"
                 className="welcome-docs-link"
               >
-                Open API Docs (Swagger UI) &rarr;
+                Open API Documentation (Swagger UI) &rarr;
               </a>
             )}
           </section>
@@ -74,13 +72,13 @@ function App() {
         {/* System Architecture Overview */}
         <section className="cards-grid">
           <div className="info-card">
-            <div className="card-badge">Client</div>
-            <h3>Frontend (React + Vite)</h3>
-            <p className="card-url">http://localhost:5173</p>
+            <div className="card-badge">Speech-to-Text</div>
+            <h3>Gnani Prisma STT</h3>
+            <p className="card-url">POST /api/speech/transcribe</p>
             <ul className="feature-list">
-              <li>TypeScript & modern React hooks</li>
-              <li>Dynamic environment config (<code>.env</code>)</li>
-              <li>Graceful network error handling</li>
+              <li>Verified <code>gnani-vachana</code> SDK integration</li>
+              <li>Multilingual support (<code>en-IN</code>, <code>te-IN</code>)</li>
+              <li>Secure temp audio processing & auto-cleanup</li>
             </ul>
           </div>
 
@@ -89,9 +87,9 @@ function App() {
             <h3>Backend (FastAPI)</h3>
             <p className="card-url">http://127.0.0.1:8000</p>
             <ul className="feature-list">
-              <li>High-performance async ASGI server</li>
+              <li>Multipart audio validation & size limits</li>
               <li>CORS configured for Vite frontend</li>
-              <li>Automated health check endpoints</li>
+              <li>Credential protection (secrets strictly masked)</li>
             </ul>
           </div>
         </section>
@@ -99,7 +97,10 @@ function App() {
 
       {/* Footer */}
       <footer className="app-footer">
-        <p>VoiceHire AI &mdash; Phase 1 Complete &bull; Built with FastAPI & React</p>
+        <p>
+          VoiceHire AI &mdash; Phase 2: Gnani Prisma STT &bull; Built with FastAPI &
+          React
+        </p>
       </footer>
     </div>
   );
